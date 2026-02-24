@@ -11,10 +11,166 @@ import json
 from datetime import datetime
 import time
 import sys
+import csv
+import os
+
+# Resolve paths relative to this script's directory, not cwd
+_SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 from ml_environment import RummikubMLEnv
 from agent import RummikubAgent
 
+
+class MatchupTracker:
+    """Tracks per-game results in a CSV file that persists across runs.
+    
+    CSV columns: timestamp, run_id, game_number, agent1, agent2, winner,
+                  agent1_hand_size, agent2_hand_size, num_turns, seed
+    
+    Provides head-to-head win rate matrix from all historical data.
+    """
+    
+    CSV_FIELDS = [
+        'timestamp', 'run_id', 'game_number', 'agent1', 'agent2',
+        'winner', 'agent1_hand_size', 'agent2_hand_size', 'num_turns', 'seed',
+    ]
+    
+    def __init__(self, csv_path: str = os.path.join(_SCRIPT_DIR, "matchup_results.csv")):
+        self.csv_path = csv_path
+        self.run_id = datetime.now().strftime("%Y%m%d_%H%M%S")
+        self.game_counter = 0
+        self._ensure_header()
+    
+    def _ensure_header(self):
+        """Create CSV with header if it doesn't exist yet."""
+        if not os.path.exists(self.csv_path):
+            with open(self.csv_path, 'w', newline='') as f:
+                writer = csv.DictWriter(f, fieldnames=self.CSV_FIELDS)
+                writer.writeheader()
+    
+    def record_game(self, result: Dict, hand_sizes: List[int]):
+        """Append a single game result row to the CSV.
+        
+        Args:
+            result: Game result dict from Tournament.run_game()
+            hand_sizes: List of ending hand sizes for each agent
+        """
+        self.game_counter += 1
+        row = {
+            'timestamp': datetime.now().isoformat(),
+            'run_id': self.run_id,
+            'game_number': self.game_counter,
+            'agent1': result['agents'][0],
+            'agent2': result['agents'][1],
+            'winner': result['winner_name'],
+            'agent1_hand_size': hand_sizes[0] if len(hand_sizes) > 0 else -1,
+            'agent2_hand_size': hand_sizes[1] if len(hand_sizes) > 1 else -1,
+            'num_turns': result['steps'],
+            'seed': result.get('seed', ''),
+        }
+        with open(self.csv_path, 'a', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=self.CSV_FIELDS)
+            writer.writerow(row)
+    
+    def load_all_results(self) -> List[Dict]:
+        """Load all historical results from the CSV."""
+        if not os.path.exists(self.csv_path):
+            return []
+        with open(self.csv_path, 'r', newline='') as f:
+            reader = csv.DictReader(f)
+            return list(reader)
+    
+    def get_head_to_head(self) -> Dict[str, Dict[str, Dict[str, int]]]:
+        """Build head-to-head stats from all CSV data.
+        
+        Returns:
+            Nested dict: h2h[agent_a][agent_b] = {'wins': N, 'losses': M, 'games': N+M}
+        """
+        rows = self.load_all_results()
+        h2h: Dict[str, Dict[str, Dict[str, int]]] = {}
+        
+        for row in rows:
+            a1 = row['agent1']
+            a2 = row['agent2']
+            winner = row['winner']
+            
+            # Ensure both agents exist in the dict
+            for agent in (a1, a2):
+                if agent not in h2h:
+                    h2h[agent] = {}
+            
+            # Ensure matchup entries exist
+            if a2 not in h2h[a1]:
+                h2h[a1][a2] = {'wins': 0, 'losses': 0, 'games': 0}
+            if a1 not in h2h[a2]:
+                h2h[a2][a1] = {'wins': 0, 'losses': 0, 'games': 0}
+            
+            h2h[a1][a2]['games'] += 1
+            h2h[a2][a1]['games'] += 1
+            
+            if winner == a1:
+                h2h[a1][a2]['wins'] += 1
+                h2h[a2][a1]['losses'] += 1
+            elif winner == a2:
+                h2h[a2][a1]['wins'] += 1
+                h2h[a1][a2]['losses'] += 1
+    
+        return h2h
+    
+    def print_matrix(self):
+        """Print a head-to-head win rate matrix across all runs."""
+        h2h = self.get_head_to_head()
+        if not h2h:
+            print("No matchup data recorded yet.")
+            return
+        
+        agents = sorted(h2h.keys())
+        rows = self.load_all_results()
+        total_games = len(rows)
+        
+        # Count runs
+        run_ids = set(r['run_id'] for r in rows)
+        
+        print("\n" + "=" * 80)
+        print(f"{'HEAD-TO-HEAD WIN RATES':^80}")
+        print(f"({'All time':^80})")
+        print(f"{f'{total_games} games across {len(run_ids)} run(s)':^80}")
+        print("=" * 80)
+        
+        # Column width
+        name_w = max(len(a) for a in agents)
+        name_w = max(name_w, 5)  # minimum
+        col_w = max(name_w, 7)
+        
+        # Header row
+        header = f"{'':>{name_w}}"
+        for agent in agents:
+            header += f" {agent:>{col_w}}"
+        print(header)
+        print("-" * len(header))
+        
+        # Data rows: row agent vs column agent, showing row agent's win rate
+        for row_agent in agents:
+            line = f"{row_agent:>{name_w}}"
+            for col_agent in agents:
+                if row_agent == col_agent:
+                    line += f" {'---':>{col_w}}"
+                elif col_agent in h2h.get(row_agent, {}):
+                    stats = h2h[row_agent][col_agent]
+                    if stats['games'] > 0:
+                        wr = stats['wins'] / stats['games'] * 100
+                        g = stats['games']
+                        cell = f"{wr:.0f}%({g})"
+                        line += f" {cell:>{col_w}}"
+                    else:
+                        line += f" {'n/a':>{col_w}}"
+                else:
+                    line += f" {'n/a':>{col_w}}"
+            print(line)
+        
+        print()
+        print("(Row = agent, Column = opponent, Value = row agent's win% (games played))")
+        print()
 
 class ProgressTracker:
     """Tracks and displays tournament progress with statistics."""
@@ -179,16 +335,19 @@ class ProgressTracker:
 class Tournament:
     """Manages games between multiple agents."""
     
-    def __init__(self, agents: List[RummikubAgent], num_players: int = 2):
+    def __init__(self, agents: List[RummikubAgent], num_players: int = 2,
+                 matchup_csv: Optional[str] = os.path.join(_SCRIPT_DIR, "matchup_results.csv")):
         """Initialize tournament.
         
         Args:
             agents: List of agents to compete
             num_players: Number of players per game
+            matchup_csv: Path to CSV file for matchup tracking (None to disable)
         """
         self.agents = agents
         self.num_players = num_players
         self.env = RummikubMLEnv(num_players=num_players)
+        self.matchup_tracker = MatchupTracker(matchup_csv) if matchup_csv else None
         
         # Statistics
         self.game_results = []
@@ -360,6 +519,12 @@ class Tournament:
             agent.update_stats(won=(i == winner_idx), reward=0.0, moves=step)
         
         self.game_results.append(result)
+        
+        # Record to CSV matchup tracker
+        if self.matchup_tracker:
+            hand_sizes = [len(self.env.game_state.player_hands[i])
+                          for i in range(len(game_agents))]
+            self.matchup_tracker.record_game(result, hand_sizes)
         
         if verbose:
             print(f"\nGame ended after {step} steps")
@@ -538,6 +703,13 @@ class Tournament:
             json.dump(results, f, indent=2)
         
         print(f"Results saved to {filename}")
+    
+    def print_matchup_matrix(self):
+        """Print head-to-head win rate matrix from CSV history."""
+        if self.matchup_tracker:
+            self.matchup_tracker.print_matrix()
+        else:
+            print("Matchup tracking is disabled (no CSV path set).")
 
 
 if __name__ == "__main__":
@@ -573,8 +745,9 @@ if __name__ == "__main__":
     print("Running Tournament: All Strategies")
     print("=" * 60)
     tournament = Tournament(agents, num_players=2)
-    tournament.run_random_matchups(num_games=50, verbose=False, show_progress=True, progress_interval=2.0)
+    tournament.run_random_matchups(num_games=200, verbose=False, show_progress=True, progress_interval=2.0)
     tournament.print_results()
+    tournament.print_matchup_matrix()
     
     # Print adaptive agent weight evolution
     for agent in agents:

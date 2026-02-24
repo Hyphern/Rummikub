@@ -1,0 +1,845 @@
+{
+  "weights": {
+    "aggressiveness": 0.21989129925166132,
+    "meld_size_preference": 0.7277949740707128,
+    "draw_preference": 0.23714766249643743
+  },
+  "best_weights": {
+    "aggressiveness": 0.2997556225057634,
+    "meld_size_preference": 0.7479183757694826,
+    "draw_preference": 0.19226389078153766
+  },
+  "best_win_streak": 5,
+  "stats": {
+    "games_played": 103,
+    "wins": 55,
+    "total_reward": 0.0,
+    "moves_made": 48565
+  },
+  "weight_history": [
+    {
+      "game": 1,
+      "won": true,
+      "lr": 0.14285714285714285,
+      "aggressiveness": 0.5,
+      "meld_size_preference": 0.5,
+      "draw_preference": 0.3
+    },
+    {
+      "game": 2,
+      "won": false,
+      "lr": 0.13636363636363635,
+      "aggressiveness": 0.4591333781767482,
+      "meld_size_preference": 0.5723903426906032,
+      "draw_preference": 0.2355227259003927
+    },
+    {
+      "game": 3,
+      "won": false,
+      "lr": 0.13043478260869565,
+      "aggressiveness": 0.40905893586770475,
+      "meld_size_preference": 0.6510105711533152,
+      "draw_preference": 0.21819147098384495
+    },
+    {
+      "game": 4,
+      "won": true,
+      "lr": 0.125,
+      "aggressiveness": 0.40905893586770475,
+      "meld_size_preference": 0.6510105711533152,
+      "draw_preference": 0.21819147098384495
+    },
+    {
+      "game": 5,
+      "won": false,
+      "lr": 0.12,
+      "aggressiveness": 0.41945673778783665,
+      "meld_size_preference": 0.7665416470160349,
+      "draw_preference": 0.21713991382437633
+    },
+    {
+      "game": 6,
+      "won": true,
+      "lr": 0.11538461538461538,
+      "aggressiveness": 0.41945673778783665,
+      "meld_size_preference": 0.7665416470160349,
+      "draw_preference": 0.21713991382437633
+    },
+    {
+      "game": 7,
+      "won": false,
+      "lr": 0.1111111111111111,
+      "aggressiveness": 0.4452928016239325,
+      "meld_size_preference": 0.7173424616916256,
+      "draw_preference": 0.28238351661746164
+    },
+    {
+      "game": 8,
+      "won": false,
+      "lr": 0.10714285714285715,
+      "aggressiveness": 0.38550393206806,
+      "meld_size_preference": 0.8056017023375794,
+      "draw_preference": 0.3660517620093365
+    },
+    {
+      "game": 9,
+      "won": false,
+      "lr": 0.10344827586206896,
+      "aggressiveness": 0.4427932335822616,
+      "meld_size_preference": 0.7479271935851314,
+      "draw_preference": 0.33023223184752026
+    },
+    {
+      "game": 10,
+      "won": true,
+      "lr": 0.09999999999999999,
+      "aggressiveness": 0.4427932335822616,
+      "meld_size_preference": 0.7479271935851313,
+      "draw_preference": 0.33023223184752026
+    },
+    {
+      "game": 11,
+      "won": true,
+      "lr": 0.0967741935483871,
+      "aggressiveness": 0.4427932335822615,
+      "meld_size_preference": 0.7479271935851313,
+      "draw_preference": 0.33023223184752026
+    },
+    {
+      "game": 12,
+      "won": false,
+      "lr": 0.09374999999999999,
+      "aggressiveness": 0.44553160727256413,
+      "meld_size_preference": 0.8181142479759478,
+      "draw_preference": 0.2545586513540138
+    },
+    {
+      "game": 13,
+      "won": false,
+      "lr": 0.09090909090909091,
+      "aggressiveness": 0.39321134373132594,
+      "meld_size_preference": 0.7643717345770181,
+      "draw_preference": 0.23605114053105256
+    },
+    {
+      "game": 14,
+      "won": true,
+      "lr": 0.08823529411764705,
+      "aggressiveness": 0.3945238055214978,
+      "meld_size_preference": 0.7639364379037035,
+      "draw_preference": 0.2385441694188414
+    },
+    {
+      "game": 15,
+      "won": false,
+      "lr": 0.08571428571428572,
+      "aggressiveness": 0.4522472714812171,
+      "meld_size_preference": 0.7757174296385028,
+      "draw_preference": 0.31751306123576534
+    },
+    {
+      "game": 16,
+      "won": false,
+      "lr": 0.08333333333333333,
+      "aggressiveness": 0.4413177628323762,
+      "meld_size_preference": 0.8445690988636351,
+      "draw_preference": 0.3211982439309156
+    },
+    {
+      "game": 17,
+      "won": false,
+      "lr": 0.08108108108108107,
+      "aggressiveness": 0.3861591227654359,
+      "meld_size_preference": 0.9133684100263662,
+      "draw_preference": 0.3442468284180394
+    },
+    {
+      "game": 18,
+      "won": false,
+      "lr": 0.07894736842105263,
+      "aggressiveness": 0.41898336582682333,
+      "meld_size_preference": 0.9117657075302181,
+      "draw_preference": 0.33992422311129045
+    },
+    {
+      "game": 19,
+      "won": false,
+      "lr": 0.07692307692307691,
+      "aggressiveness": 0.3965985613582513,
+      "meld_size_preference": 0.8916895469658846,
+      "draw_preference": 0.35749491543541967
+    },
+    {
+      "game": 20,
+      "won": true,
+      "lr": 0.075,
+      "aggressiveness": 0.39763794148329157,
+      "meld_size_preference": 0.8884548940148178,
+      "draw_preference": 0.35688150505469196
+    },
+    {
+      "game": 21,
+      "won": true,
+      "lr": 0.07317073170731708,
+      "aggressiveness": 0.39763794148329157,
+      "meld_size_preference": 0.8884548940148178,
+      "draw_preference": 0.35688150505469196
+    },
+    {
+      "game": 22,
+      "won": true,
+      "lr": 0.07142857142857142,
+      "aggressiveness": 0.39763794148329157,
+      "meld_size_preference": 0.8884548940148177,
+      "draw_preference": 0.35688150505469196
+    },
+    {
+      "game": 23,
+      "won": false,
+      "lr": 0.0697674418604651,
+      "aggressiveness": 0.40016264143365826,
+      "meld_size_preference": 0.9457366959575496,
+      "draw_preference": 0.30995826830468853
+    },
+    {
+      "game": 24,
+      "won": true,
+      "lr": 0.06818181818181818,
+      "aggressiveness": 0.40011099984376436,
+      "meld_size_preference": 0.9445650227359936,
+      "draw_preference": 0.3109180617836659
+    },
+    {
+      "game": 25,
+      "won": false,
+      "lr": 0.06666666666666667,
+      "aggressiveness": 0.3575225510286599,
+      "meld_size_preference": 0.8848561013594782,
+      "draw_preference": 0.3190849196296174
+    },
+    {
+      "game": 26,
+      "won": true,
+      "lr": 0.06521739130434782,
+      "aggressiveness": 0.3583074173636418,
+      "meld_size_preference": 0.8849265125201262,
+      "draw_preference": 0.31982441804010797
+    },
+    {
+      "game": 27,
+      "won": true,
+      "lr": 0.06382978723404255,
+      "aggressiveness": 0.35906055505955004,
+      "meld_size_preference": 0.8849940772721522,
+      "draw_preference": 0.32053402183400426
+    },
+    {
+      "game": 28,
+      "won": true,
+      "lr": 0.062499999999999986,
+      "aggressiveness": 0.35906055505955,
+      "meld_size_preference": 0.8849940772721521,
+      "draw_preference": 0.32053402183400426
+    },
+    {
+      "game": 29,
+      "won": true,
+      "lr": 0.06122448979591836,
+      "aggressiveness": 0.35906055505955,
+      "meld_size_preference": 0.8849940772721521,
+      "draw_preference": 0.32053402183400426
+    },
+    {
+      "game": 30,
+      "won": true,
+      "lr": 0.06,
+      "aggressiveness": 0.35906055505955,
+      "meld_size_preference": 0.8849940772721521,
+      "draw_preference": 0.32053402183400426
+    },
+    {
+      "game": 31,
+      "won": false,
+      "lr": 0.058823529411764705,
+      "aggressiveness": 0.39685409976945174,
+      "meld_size_preference": 0.8508054817612483,
+      "draw_preference": 0.26273388626694205
+    },
+    {
+      "game": 32,
+      "won": true,
+      "lr": 0.05769230769230769,
+      "aggressiveness": 0.39619998072639573,
+      "meld_size_preference": 0.8513972074527831,
+      "draw_preference": 0.2637342732286797
+    },
+    {
+      "game": 33,
+      "won": true,
+      "lr": 0.05660377358490565,
+      "aggressiveness": 0.39556931123393985,
+      "meld_size_preference": 0.8519677203365082,
+      "draw_preference": 0.2646987972616003
+    },
+    {
+      "game": 34,
+      "won": false,
+      "lr": 0.05555555555555555,
+      "aggressiveness": 0.441296509701281,
+      "meld_size_preference": 0.8877488875585353,
+      "draw_preference": 0.280912396953924
+    },
+    {
+      "game": 35,
+      "won": true,
+      "lr": 0.05454545454545454,
+      "aggressiveness": 0.4399508304435072,
+      "meld_size_preference": 0.8877038088447581,
+      "draw_preference": 0.28156075081559806
+    },
+    {
+      "game": 36,
+      "won": true,
+      "lr": 0.053571428571428575,
+      "aggressiveness": 0.43865080816055074,
+      "meld_size_preference": 0.8876602595873412,
+      "draw_preference": 0.28218710695696525
+    },
+    {
+      "game": 37,
+      "won": false,
+      "lr": 0.05263157894736842,
+      "aggressiveness": 0.4193887441292581,
+      "meld_size_preference": 0.8560043325803962,
+      "draw_preference": 0.23822305110478306
+    },
+    {
+      "game": 38,
+      "won": false,
+      "lr": 0.051724137931034475,
+      "aggressiveness": 0.4025170242476105,
+      "meld_size_preference": 0.8169070182733597,
+      "draw_preference": 0.23507783115478356
+    },
+    {
+      "game": 39,
+      "won": false,
+      "lr": 0.05084745762711864,
+      "aggressiveness": 0.3624424063386392,
+      "meld_size_preference": 0.7866218747106871,
+      "draw_preference": 0.21644374114657186
+    },
+    {
+      "game": 40,
+      "won": false,
+      "lr": 0.049999999999999996,
+      "aggressiveness": 0.3618125009538175,
+      "meld_size_preference": 0.7810433845714957,
+      "draw_preference": 0.19952030631727544
+    },
+    {
+      "game": 41,
+      "won": true,
+      "lr": 0.04918032786885245,
+      "aggressiveness": 0.3617718984734103,
+      "meld_size_preference": 0.7825770833162595,
+      "draw_preference": 0.20130575457899766
+    },
+    {
+      "game": 42,
+      "won": true,
+      "lr": 0.04838709677419355,
+      "aggressiveness": 0.3617325402625639,
+      "meld_size_preference": 0.7840637816156192,
+      "draw_preference": 0.2030364874907639
+    },
+    {
+      "game": 43,
+      "won": true,
+      "lr": 0.047619047619047616,
+      "aggressiveness": 0.36169436904537805,
+      "meld_size_preference": 0.7855056429821411,
+      "draw_preference": 0.20471502369566735
+    },
+    {
+      "game": 44,
+      "won": true,
+      "lr": 0.04687499999999999,
+      "aggressiveness": 0.36165733103620235,
+      "meld_size_preference": 0.7869046990893444,
+      "draw_preference": 0.20634372835698772
+    },
+    {
+      "game": 45,
+      "won": true,
+      "lr": 0.04615384615384615,
+      "aggressiveness": 0.36165733103620235,
+      "meld_size_preference": 0.7869046990893444,
+      "draw_preference": 0.20634372835698772
+    },
+    {
+      "game": 46,
+      "won": false,
+      "lr": 0.04545454545454545,
+      "aggressiveness": 0.38577415944890925,
+      "meld_size_preference": 0.7652077541854343,
+      "draw_preference": 0.2409740922138587
+    },
+    {
+      "game": 47,
+      "won": true,
+      "lr": 0.04477611940298507,
+      "aggressiveness": 0.38545020205232067,
+      "meld_size_preference": 0.7654992056841435,
+      "draw_preference": 0.2405089082217515
+    },
+    {
+      "game": 48,
+      "won": false,
+      "lr": 0.044117647058823525,
+      "aggressiveness": 0.3587303194716475,
+      "meld_size_preference": 0.7460647710126079,
+      "draw_preference": 0.22394030629394526
+    },
+    {
+      "game": 49,
+      "won": false,
+      "lr": 0.043478260869565216,
+      "aggressiveness": 0.33229854528397246,
+      "meld_size_preference": 0.7370396898608124,
+      "draw_preference": 0.22623040198046637
+    },
+    {
+      "game": 50,
+      "won": false,
+      "lr": 0.04285714285714286,
+      "aggressiveness": 0.3322785572775653,
+      "meld_size_preference": 0.7236293051648081,
+      "draw_preference": 0.22772572987587691
+    },
+    {
+      "game": 51,
+      "won": true,
+      "lr": 0.042253521126760556,
+      "aggressiveness": 0.332650964268872,
+      "meld_size_preference": 0.7244313876230064,
+      "draw_preference": 0.22745469042000369
+    },
+    {
+      "game": 52,
+      "won": true,
+      "lr": 0.041666666666666664,
+      "aggressiveness": 0.3330135438534636,
+      "meld_size_preference": 0.7252123040163357,
+      "draw_preference": 0.227190803394216
+    },
+    {
+      "game": 53,
+      "won": true,
+      "lr": 0.0410958904109589,
+      "aggressiveness": 0.3333666864351686,
+      "meld_size_preference": 0.7259728951884687,
+      "draw_preference": 0.2269337846608803
+    },
+    {
+      "game": 54,
+      "won": false,
+      "lr": 0.040540540540540536,
+      "aggressiveness": 0.2967542012933942,
+      "meld_size_preference": 0.7460280502747189,
+      "draw_preference": 0.191581203273084
+    },
+    {
+      "game": 55,
+      "won": true,
+      "lr": 0.04,
+      "aggressiveness": 0.2975330388503079,
+      "meld_size_preference": 0.7465185700604944,
+      "draw_preference": 0.19175835357409085
+    },
+    {
+      "game": 56,
+      "won": true,
+      "lr": 0.039473684210526314,
+      "aggressiveness": 0.29829240546829877,
+      "meld_size_preference": 0.7469968268516255,
+      "draw_preference": 0.1919310751175725
+    },
+    {
+      "game": 57,
+      "won": true,
+      "lr": 0.03896103896103896,
+      "aggressiveness": 0.2990330344684431,
+      "meld_size_preference": 0.7474632825011573,
+      "draw_preference": 0.19209953470089036
+    },
+    {
+      "game": 58,
+      "won": true,
+      "lr": 0.03846153846153846,
+      "aggressiveness": 0.2997556225057634,
+      "meld_size_preference": 0.7479183757694826,
+      "draw_preference": 0.19226389078153766
+    },
+    {
+      "game": 59,
+      "won": true,
+      "lr": 0.03797468354430379,
+      "aggressiveness": 0.29975562250576343,
+      "meld_size_preference": 0.7479183757694826,
+      "draw_preference": 0.19226389078153766
+    },
+    {
+      "game": 60,
+      "won": false,
+      "lr": 0.0375,
+      "aggressiveness": 0.2961544185491729,
+      "meld_size_preference": 0.7807054881534988,
+      "draw_preference": 0.19291944112740833
+    },
+    {
+      "game": 61,
+      "won": false,
+      "lr": 0.03703703703703703,
+      "aggressiveness": 0.26760548373663706,
+      "meld_size_preference": 0.7471526403947218,
+      "draw_preference": 0.1741653209206962
+    },
+    {
+      "game": 62,
+      "won": false,
+      "lr": 0.03658536585365854,
+      "aggressiveness": 0.26952966325954597,
+      "meld_size_preference": 0.7535585830915275,
+      "draw_preference": 0.16520208279827192
+    },
+    {
+      "game": 63,
+      "won": false,
+      "lr": 0.03614457831325301,
+      "aggressiveness": 0.2644838860362948,
+      "meld_size_preference": 0.7321496702549433,
+      "draw_preference": 0.1983539456172947
+    },
+    {
+      "game": 64,
+      "won": true,
+      "lr": 0.03571428571428571,
+      "aggressiveness": 0.26486179749846767,
+      "meld_size_preference": 0.7323186206711705,
+      "draw_preference": 0.19828869502976873
+    },
+    {
+      "game": 65,
+      "won": true,
+      "lr": 0.03529411764705882,
+      "aggressiveness": 0.2652312615279567,
+      "meld_size_preference": 0.7324837945486821,
+      "draw_preference": 0.19822490298478745
+    },
+    {
+      "game": 66,
+      "won": true,
+      "lr": 0.03488372093023255,
+      "aggressiveness": 0.26559256298005,
+      "meld_size_preference": 0.7326453192358765,
+      "draw_preference": 0.1981625202989395
+    },
+    {
+      "game": 67,
+      "won": true,
+      "lr": 0.034482758620689655,
+      "aggressiveness": 0.26594597394066083,
+      "meld_size_preference": 0.732803316372431,
+      "draw_preference": 0.19810149999358706
+    },
+    {
+      "game": 68,
+      "won": false,
+      "lr": 0.03409090909090909,
+      "aggressiveness": 0.26979829695799523,
+      "meld_size_preference": 0.70690714798036,
+      "draw_preference": 0.1990510945168639
+    },
+    {
+      "game": 69,
+      "won": false,
+      "lr": 0.033707865168539325,
+      "aggressiveness": 0.2544282490430797,
+      "meld_size_preference": 0.6880467738727687,
+      "draw_preference": 0.18941727382659762
+    },
+    {
+      "game": 70,
+      "won": true,
+      "lr": 0.03333333333333333,
+      "aggressiveness": 0.25488152277770654,
+      "meld_size_preference": 0.6886454898917358,
+      "draw_preference": 0.18944573999614703
+    },
+    {
+      "game": 71,
+      "won": false,
+      "lr": 0.03296703296703296,
+      "aggressiveness": 0.24757954078945416,
+      "meld_size_preference": 0.6997948474305548,
+      "draw_preference": 0.19478752515204328
+    },
+    {
+      "game": 72,
+      "won": true,
+      "lr": 0.03260869565217391,
+      "aggressiveness": 0.24808995898015718,
+      "meld_size_preference": 0.7002656210773486,
+      "draw_preference": 0.19476283742450573
+    },
+    {
+      "game": 73,
+      "won": true,
+      "lr": 0.03225806451612903,
+      "aggressiveness": 0.24858994927234046,
+      "meld_size_preference": 0.7007267767679176,
+      "draw_preference": 0.19473865406989635
+    },
+    {
+      "game": 74,
+      "won": true,
+      "lr": 0.031914893617021274,
+      "aggressiveness": 0.24907983337776682,
+      "meld_size_preference": 0.7011786112264432,
+      "draw_preference": 0.19471495952777376
+    },
+    {
+      "game": 75,
+      "won": false,
+      "lr": 0.031578947368421054,
+      "aggressiveness": 0.23462376607609314,
+      "meld_size_preference": 0.7120056624812507,
+      "draw_preference": 0.2082160793326318
+    },
+    {
+      "game": 76,
+      "won": false,
+      "lr": 0.031249999999999993,
+      "aggressiveness": 0.2215097116513968,
+      "meld_size_preference": 0.7384316225849622,
+      "draw_preference": 0.23323041082215262
+    },
+    {
+      "game": 77,
+      "won": false,
+      "lr": 0.030927835051546393,
+      "aggressiveness": 0.21392080148954956,
+      "meld_size_preference": 0.7465483793244236,
+      "draw_preference": 0.242587437580826
+    },
+    {
+      "game": 78,
+      "won": true,
+      "lr": 0.03061224489795918,
+      "aggressiveness": 0.2147090804580658,
+      "meld_size_preference": 0.7465609609244293,
+      "draw_preference": 0.24212528255919988
+    },
+    {
+      "game": 79,
+      "won": true,
+      "lr": 0.0303030303030303,
+      "aggressiveness": 0.21548223084031762,
+      "meld_size_preference": 0.7465733010593844,
+      "draw_preference": 0.24167199717940296
+    },
+    {
+      "game": 80,
+      "won": false,
+      "lr": 0.03,
+      "aggressiveness": 0.22314581631173488,
+      "meld_size_preference": 0.7693941958492948,
+      "draw_preference": 0.24717656467474022
+    },
+    {
+      "game": 81,
+      "won": false,
+      "lr": 0.0297029702970297,
+      "aggressiveness": 0.21832355016807778,
+      "meld_size_preference": 0.7551533637733909,
+      "draw_preference": 0.2529667268311124
+    },
+    {
+      "game": 82,
+      "won": false,
+      "lr": 0.02941176470588235,
+      "aggressiveness": 0.20955660726123995,
+      "meld_size_preference": 0.7786160977481082,
+      "draw_preference": 0.2453650782593548
+    },
+    {
+      "game": 83,
+      "won": true,
+      "lr": 0.029126213592233007,
+      "aggressiveness": 0.21034475399638627,
+      "meld_size_preference": 0.7783478652259649,
+      "draw_preference": 0.24490108730081078
+    },
+    {
+      "game": 84,
+      "won": true,
+      "lr": 0.028846153846153844,
+      "aggressiveness": 0.2111185018969482,
+      "meld_size_preference": 0.7780845331056685,
+      "draw_preference": 0.24444557310016324
+    },
+    {
+      "game": 85,
+      "won": true,
+      "lr": 0.02857142857142857,
+      "aggressiveness": 0.21187824864502375,
+      "meld_size_preference": 0.777825966042787,
+      "draw_preference": 0.24399830153743218
+    },
+    {
+      "game": 86,
+      "won": false,
+      "lr": 0.02830188679245283,
+      "aggressiveness": 0.20718750388944687,
+      "meld_size_preference": 0.7680503956805844,
+      "draw_preference": 0.2619697343465998
+    },
+    {
+      "game": 87,
+      "won": false,
+      "lr": 0.02803738317757009,
+      "aggressiveness": 0.18181913492479243,
+      "meld_size_preference": 0.7643084896394315,
+      "draw_preference": 0.26864628331679496
+    },
+    {
+      "game": 88,
+      "won": false,
+      "lr": 0.027777777777777776,
+      "aggressiveness": 0.18925232810883066,
+      "meld_size_preference": 0.7773238650222283,
+      "draw_preference": 0.25628973863363375
+    },
+    {
+      "game": 89,
+      "won": false,
+      "lr": 0.027522935779816512,
+      "aggressiveness": 0.2061988944721199,
+      "meld_size_preference": 0.7690470464913092,
+      "draw_preference": 0.2705434672167865
+    },
+    {
+      "game": 90,
+      "won": true,
+      "lr": 0.02727272727272727,
+      "aggressiveness": 0.206964358610577,
+      "meld_size_preference": 0.7688741755490396,
+      "draw_preference": 0.2699029979550435
+    },
+    {
+      "game": 91,
+      "won": true,
+      "lr": 0.02702702702702703,
+      "aggressiveness": 0.20771672020972715,
+      "meld_size_preference": 0.7687042636589351,
+      "draw_preference": 0.2692734916806637
+    },
+    {
+      "game": 92,
+      "won": false,
+      "lr": 0.02678571428571428,
+      "aggressiveness": 0.23198347724310123,
+      "meld_size_preference": 0.7681476791900935,
+      "draw_preference": 0.27160977683315235
+    },
+    {
+      "game": 93,
+      "won": true,
+      "lr": 0.026548672566371678,
+      "aggressiveness": 0.2325232553912109,
+      "meld_size_preference": 0.7679865608442656,
+      "draw_preference": 0.27097781844867047
+    },
+    {
+      "game": 94,
+      "won": false,
+      "lr": 0.02631578947368421,
+      "aggressiveness": 0.22466128416795775,
+      "meld_size_preference": 0.7488149502999173,
+      "draw_preference": 0.2493900268244261
+    },
+    {
+      "game": 95,
+      "won": false,
+      "lr": 0.02608695652173913,
+      "aggressiveness": 0.20661254303035076,
+      "meld_size_preference": 0.7273783026688572,
+      "draw_preference": 0.23646594041673963
+    },
+    {
+      "game": 96,
+      "won": true,
+      "lr": 0.025862068965517238,
+      "aggressiveness": 0.2073352048538669,
+      "meld_size_preference": 0.7275376653049827,
+      "draw_preference": 0.23612299347991478
+    },
+    {
+      "game": 97,
+      "won": true,
+      "lr": 0.025641025641025637,
+      "aggressiveness": 0.20804613114349688,
+      "meld_size_preference": 0.7276944400008635,
+      "draw_preference": 0.23578561576685036
+    },
+    {
+      "game": 98,
+      "won": true,
+      "lr": 0.02542372881355932,
+      "aggressiveness": 0.20874561031490396,
+      "meld_size_preference": 0.7278486903584207,
+      "draw_preference": 0.23545367040679288
+    },
+    {
+      "game": 99,
+      "won": false,
+      "lr": 0.025210084033613443,
+      "aggressiveness": 0.19588846799900755,
+      "meld_size_preference": 0.7338276799980562,
+      "draw_preference": 0.2595412919630012
+    },
+    {
+      "game": 100,
+      "won": true,
+      "lr": 0.024999999999999998,
+      "aggressiveness": 0.19666747165780823,
+      "meld_size_preference": 0.7339333602163419,
+      "draw_preference": 0.2590367114541402
+    },
+    {
+      "game": 101,
+      "won": false,
+      "lr": 0.024793388429752063,
+      "aggressiveness": 0.21870470211040743,
+      "meld_size_preference": 0.7274959873648206,
+      "draw_preference": 0.23781453041737555
+    },
+    {
+      "game": 102,
+      "won": true,
+      "lr": 0.024590163934426226,
+      "aggressiveness": 0.21930261873627482,
+      "meld_size_preference": 0.7276466443284615,
+      "draw_preference": 0.23747850110858656
+    },
+    {
+      "game": 103,
+      "won": true,
+      "lr": 0.024390243902439022,
+      "aggressiveness": 0.21989129925166132,
+      "meld_size_preference": 0.7277949740707128,
+      "draw_preference": 0.23714766249643743
+    }
+  ]
+}
