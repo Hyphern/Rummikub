@@ -354,6 +354,10 @@ class Tournament:
             self.agent_stats[agent.name]['games'] += 1
             if i == winner_idx:
                 self.agent_stats[agent.name]['wins'] += 1
+
+        # Notify agents of game result (enables adaptive agents)
+        for i, agent in enumerate(game_agents):
+            agent.update_stats(won=(i == winner_idx), reward=0.0, moves=step)
         
         self.game_results.append(result)
         
@@ -537,23 +541,43 @@ class Tournament:
 
 
 if __name__ == "__main__":
-    from agent import SmartWormAgent
+    from agent import (
+        SmartWormAgent, AdaptiveWormAgent,
+        create_hoarder, create_aggressive, create_strategic,
+        create_greedy, create_cautious, create_adaptive,
+    )
 
-    # Create SmartWorm agents only for testing
-    worm_agents = [
-        SmartWormAgent("SmartWorm_1"),
-        SmartWormAgent("SmartWorm_2")
+    # Create diverse agents with different strategies
+    agents = [
+        SmartWormAgent("SmartWorm"),
+        create_hoarder(),
+        create_aggressive(),
+        create_strategic(),
+        create_greedy(),
+        create_cautious(),
+        create_adaptive(),
     ]
 
     print("Rummikub ML Tournament System")
-    print("="*60)
+    print("=" * 60)
     print("\nAgent Strategies:")
-    print("  - SmartWorm: Deep worm.py solver integration")
+    print("  - SmartWorm:   Baseline solver (no weights)")
+    print("  - Hoarder:     Holds tiles, draws a lot, plays big melds")
+    print("  - Aggressive:  Plays everything ASAP, small melds first")
+    print("  - Strategic:   Balanced, prefers medium-large melds")
+    print("  - Greedy:      Always plays biggest meld available")
+    print("  - Cautious:    Conservative, small melds, moderate hoarding")
+    print("  - Adaptive:    Learns weight adjustments from wins/losses")
 
-    # Run tournament with SmartWorm vs SmartWorm
-    print("\n" + "="*60)
-    print("Running Tournament: SmartWorm vs SmartWorm")
-    print("="*60)
-    tournament = Tournament(worm_agents, num_players=2)
-    tournament.run_random_matchups(num_games=5, verbose=False, show_progress=True, progress_interval=2.0)
+    print("\n" + "=" * 60)
+    print("Running Tournament: All Strategies")
+    print("=" * 60)
+    tournament = Tournament(agents, num_players=2)
+    tournament.run_random_matchups(num_games=50, verbose=False, show_progress=True, progress_interval=2.0)
     tournament.print_results()
+    
+    # Print adaptive agent weight evolution
+    for agent in agents:
+        if isinstance(agent, AdaptiveWormAgent):
+            print()
+            print(agent.get_weight_summary())
