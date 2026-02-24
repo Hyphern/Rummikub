@@ -37,7 +37,7 @@ class RummikubMLEnv:
         
         # Action space sizes
         self.max_hand_size = 30  # Can grow if drawing a lot
-        self.max_melds = 20
+        self.max_melds = 40
         self.max_tiles_per_meld = 13
         
     def reset(self, seed: Optional[int] = None) -> Dict[str, np.ndarray]:
@@ -163,7 +163,7 @@ class RummikubMLEnv:
             
             if len(tile_indices) >= 3:
                 # Check initial meld requirement
-                if has_initial or Meld.calculate_value(meld_tiles) >= 30:
+                if has_initial or Meld.calculate_value(meld_tiles) >= 15:
                     # Mark action as valid (using first tile index as identifier)
                     # This is a simplification - real implementation would need full encoding
                     if tile_indices[0] < self.max_hand_size:
@@ -217,7 +217,8 @@ class RummikubMLEnv:
             else:
                 info['action_taken'] = 'DRAW_FAILED'
                 reward = -1.0
-                
+                # Pool empty — pass turn so game doesn't stall
+                self.game_state.next_player()
         elif action == 1:
             # DECLARE_OUT
             if self.game_state.declare_out(player_id):

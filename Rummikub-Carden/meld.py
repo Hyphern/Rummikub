@@ -293,7 +293,7 @@ class Meld:
         return self_sorted == other_sorted
 
 
-def find_all_valid_melds(tiles: List[Tile], max_tiles: int = 13) -> List[List[Tile]]:
+def find_all_valid_melds(tiles: List[Tile], max_tiles: int = 6) -> List[List[Tile]]:
     """Find valid melds from a set of tiles.
     
     Checks all runs/groups of 3+ tiles.

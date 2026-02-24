@@ -555,5 +555,5 @@ if __name__ == "__main__":
     print("Running Tournament: SmartWorm vs SmartWorm")
     print("="*60)
     tournament = Tournament(worm_agents, num_players=2)
-    tournament.run_random_matchups(num_games=1, verbose=False, show_progress=True, progress_interval=2.0)
+    tournament.run_random_matchups(num_games=5, verbose=False, show_progress=True, progress_interval=2.0)
     tournament.print_results()
