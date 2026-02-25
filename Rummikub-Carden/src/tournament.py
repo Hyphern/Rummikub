@@ -21,6 +21,7 @@ warnings.filterwarnings('ignore', category=DeprecationWarning)
 
 # Resolve paths relative to this script's directory, not cwd
 _SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+_DATA_DIR = os.path.join(os.path.dirname(_SCRIPT_DIR), "data")
 
 from ml_environment import RummikubMLEnv
 from agent import RummikubAgent
@@ -46,7 +47,7 @@ def _create_agents_by_name(agent_names, worker_id=0, num_workers=1):
     agents = []
     for name in agent_names:
         if name == 'Adaptive':
-            save_file = os.path.join(_SCRIPT_DIR, f"adaptive_weights_worker{worker_id}.json")
+            save_file = os.path.join(_DATA_DIR, f"adaptive_weights_worker{worker_id}.json")
             variation = (worker_id - num_workers / 2) * 0.1
             adaptive = AdaptiveWormAgent(
                 name=name,
@@ -133,7 +134,7 @@ class MatchupTracker:
         'winner', 'agent1_hand_size', 'agent2_hand_size', 'num_turns', 'seed',
     ]
     
-    def __init__(self, csv_path: str = os.path.join(_SCRIPT_DIR, "matchup_results.csv")):
+    def __init__(self, csv_path: str = os.path.join(_DATA_DIR, "matchup_results.csv")):
         self.csv_path = csv_path
         self.run_id = datetime.now().strftime("%Y%m%d_%H%M%S")
         self.game_counter = 0
@@ -434,7 +435,7 @@ class Tournament:
     """Manages games between multiple agents."""
     
     def __init__(self, agents: List[RummikubAgent], num_players: int = 2,
-                 matchup_csv: Optional[str] = os.path.join(_SCRIPT_DIR, "matchup_results.csv")):
+                 matchup_csv: Optional[str] = os.path.join(_DATA_DIR, "matchup_results.csv")):
         """Initialize tournament.
         
         Args:
@@ -808,8 +809,8 @@ class Tournament:
             
             import shutil
             import os
-            best_file = os.path.join(_SCRIPT_DIR, f"adaptive_weights_worker{best_worker_id}.json")
-            main_file = os.path.join(_SCRIPT_DIR, "adaptive_weights.json")
+            best_file = os.path.join(_DATA_DIR, f"adaptive_weights_worker{best_worker_id}.json")
+            main_file = os.path.join(_DATA_DIR, "adaptive_weights.json")
             if os.path.exists(best_file):
                 shutil.copy(best_file, main_file)
                 print(f"[EVOLUTION] Copied best weights to {main_file}")
@@ -910,7 +911,7 @@ if __name__ == "__main__":
         create_strategic(),
         create_greedy(),
         create_cautious(),
-        create_adaptive(),
+        # create_adaptive(),
     ]
 
     print("Rummikub ML Tournament System")

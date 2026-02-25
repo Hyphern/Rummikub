@@ -10,6 +10,7 @@ import os
 
 # Resolve paths relative to this script's directory, not cwd
 _SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+_DATA_DIR = os.path.join(os.path.dirname(_SCRIPT_DIR), "data")
 
 from typing import Dict, List, Optional, Any
 from abc import ABC, abstractmethod
@@ -599,7 +600,7 @@ class AdaptiveWormAgent(WeightedWormAgent):
                  lr_decay: float = 0.05,
                  win_momentum: float = 0.3,
                  loss_perturbation: float = 1.0,
-                 save_file: Optional[str] = os.path.join(_SCRIPT_DIR, "adaptive_weights.json")):
+                 save_file: Optional[str] = os.path.join(_DATA_DIR, "adaptive_weights.json")):
         super().__init__(name, aggressiveness, meld_size_preference, draw_preference)
         self.initial_lr = initial_lr
         self.lr_decay = lr_decay

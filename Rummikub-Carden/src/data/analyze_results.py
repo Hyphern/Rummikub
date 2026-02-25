@@ -23,9 +23,10 @@ from collections import defaultdict
 from typing import Dict, List, Optional, Tuple
 
 _SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-DEFAULT_CSV = os.path.join(_SCRIPT_DIR, "matchup_results.csv")
-DEFAULT_WEIGHTS = os.path.join(_SCRIPT_DIR, "adaptive_weights.json")
-PLOTS_DIR = os.path.join(_SCRIPT_DIR, "plots")
+_DATA_DIR = _SCRIPT_DIR  # analyze_results.py is in data/ folder
+DEFAULT_CSV = os.path.join(_DATA_DIR, "matchup_results.csv")
+DEFAULT_WEIGHTS = os.path.join(_DATA_DIR, "adaptive_weights.json")
+PLOTS_DIR = os.path.join(_DATA_DIR, "plots")
 
 
 # ---------------------------------------------------------------------------
@@ -703,6 +704,54 @@ def plot_win_rate_over_time(games: List[dict], show: bool = False):
         plt.show()
     plt.close(fig)
 
+def plot_overall_winrate(games: List[dict], show: bool = False):
+    """Plot overall win rate for each agent as a bar chart."""
+    plt, _ = _try_import_matplotlib()
+    if plt is None:
+        print("  [skip] matplotlib not installed — no overall win rate chart")
+        return
+
+    agents = sorted({g["agent1"] for g in games} | {g["agent2"] for g in games})
+    wins = {a: 0 for a in agents}
+    games_played = {a: 0 for a in agents}
+
+    for g in games:
+        a1, a2, winner = g["agent1"], g["agent2"], g["winner"]
+        games_played[a1] += 1
+        games_played[a2] += 1
+        if winner == a1:
+            wins[a1] += 1
+        elif winner == a2:
+            wins[a2] += 1
+
+    win_rates = {a: wins[a] / games_played[a] * 100 if games_played[a] > 0 else 0 for a in agents}
+
+    fig, ax = plt.subplots(figsize=(8, 5))
+    colors = ["#e74c3c", "#3498db", "#2ecc71", "#f39c12", "#9b59b6", "#1abc9c", "#e67e22"]
+    bars = ax.barh(agents, [win_rates[a] for a in agents], color=colors[: len(agents)], edgecolor="white")
+
+    ax.axvline(x=50, color="gray", linestyle="--", alpha=0.7)
+    ax.set_xlabel("Win Rate (%)")
+    ax.set_title("Overall Agent Win Rates")
+    ax.legend(["50% Baseline"], loc="upper right")
+
+    for bar, wr in zip(bars, [win_rates[a] for a in agents]):
+        ax.text(
+            bar.get_width() + 1,
+            bar.get_y() + bar.get_height() / 2,
+            f"{wr:.1f}%",
+            va="center",
+            fontsize=9,
+        )
+
+    plt.tight_layout()
+    os.makedirs(PLOTS_DIR, exist_ok=True)
+    path = os.path.join(PLOTS_DIR, "overall_win_rates.png")
+    fig.savefig(path, dpi=150)
+    print(f"  Saved: {path}")
+    if show:
+        plt.show()
+
 
 # ---------------------------------------------------------------------------
 # Main
@@ -748,6 +797,7 @@ def main():
         plot_h2h_heatmap(agents, h2h, show=show_plots)
         plot_elo_ratings(elo, show=show_plots)
         plot_win_rate_over_time(games, show=show_plots)
+        plot_overall_winrate(games, show=show_plots)
         if adaptive:
             plot_adaptive_evolution(adaptive, show=show_plots)
         print()
