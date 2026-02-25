@@ -10,7 +10,7 @@ import os
 
 # Resolve paths relative to this script's directory, not cwd
 _SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-_DATA_DIR = os.path.join(os.path.dirname(_SCRIPT_DIR), "data")
+_DATA_DIR = os.path.join(_SCRIPT_DIR, "data")
 
 from typing import Dict, List, Optional, Any
 from abc import ABC, abstractmethod

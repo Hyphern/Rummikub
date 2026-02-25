@@ -14,14 +14,14 @@ import sys
 import csv
 import os
 import warnings
-from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import ProcessPoolExecutor, as_completed
 import multiprocessing
 
 warnings.filterwarnings('ignore', category=DeprecationWarning)
 
 # Resolve paths relative to this script's directory, not cwd
 _SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-_DATA_DIR = os.path.join(os.path.dirname(_SCRIPT_DIR), "data")
+_DATA_DIR = os.path.join(_SCRIPT_DIR, "data")
 
 from ml_environment import RummikubMLEnv
 from agent import RummikubAgent
@@ -274,22 +274,26 @@ class MatchupTracker:
 class ProgressTracker:
     """Tracks and displays tournament progress with statistics."""
     
-    def __init__(self, total_games: int, update_interval: float = 1.0):
+    def __init__(self, total_games: int, update_interval: float = 1.0, num_workers: int = 1):
         """Initialize progress tracker.
         
         Args:
             total_games: Total number of games to run
             update_interval: How often to update display (seconds)
+            num_workers: Number of parallel workers
         """
         self.total_games = total_games
         self.completed_games = 0
         self.start_time = None
         self.update_interval = update_interval
         self.last_update = 0
+        self.num_workers = num_workers
         self.agent_stats = defaultdict(lambda: {'wins': 0, 'games': 0})
         self.current_matchup = ""
         self.win_streaks = defaultdict(int)
         self.last_winner = None
+        self.active_workers = set()
+        self.recent_results = []
         
     def start(self):
         """Start tracking progress."""
@@ -306,13 +310,17 @@ class ProgressTracker:
         print(f"Start Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         print("-"*80)
         
-    def update(self, game_result: Dict):
+    def update(self, game_result: Dict, worker_id: Optional[int] = None):
         """Update progress with a completed game.
         
         Args:
             game_result: Result from run_game()
+            worker_id: ID of worker that completed the game
         """
         self.completed_games += 1
+        
+        if worker_id is not None and worker_id in self.active_workers:
+            self.active_workers.discard(worker_id)
         
         # Update agent stats
         agents = game_result['agents']
@@ -335,6 +343,9 @@ class ProgressTracker:
         
         # Update current matchup info
         self.current_matchup = " vs ".join(agents)
+        self.recent_results.append(game_result)
+        if len(self.recent_results) > 10:
+            self.recent_results.pop(0)
         
         # Check if we should display update
         # Update on: first game, interval elapsed, or last game
@@ -380,11 +391,16 @@ class ProgressTracker:
               f"Rate: {games_per_sec:.1f} games/sec | "
               f"ETA: {eta_str}")
         print(f"Elapsed: {self._format_time(elapsed)}")
+        if self.num_workers > 1:
+            active = ", ".join(f"W{i}" for i in sorted(self.active_workers)) if self.active_workers else "none"
+            print(f"Active workers: {active}")
         print("-"*80)
         
-        # Current matchup
-        if self.current_matchup:
-            print(f"Current: {self.current_matchup}")
+        # Recent matchups
+        if self.recent_results:
+            print("Recent:")
+            for result in self.recent_results[-3:]:
+                print(f"  {result['agents'][0]} vs {result['agents'][1]}: {result['winner_name']}")
             print()
         
         # Agent standings
@@ -764,23 +780,30 @@ class Tournament:
             worker_id = game_idx % num_workers
             game_args.append((agent_names, agent_indices, seed, worker_id, num_workers))
         
-        tracker = ProgressTracker(num_games, update_interval=progress_interval)
+        tracker = ProgressTracker(num_games, update_interval=progress_interval, num_workers=num_workers)
         tracker.start()
         
         results = []
-        worker_stats = {i: {'wins': 0, 'games': 0} for i in range(num_workers)}
+        worker_stats = {i: {'wins': 0, 'games': 0, 'active': False} for i in range(num_workers)}
         
         with ProcessPoolExecutor(max_workers=num_workers) as executor:
-            futures = list(executor.map(_run_single_game, game_args))
-            for i, result in enumerate(futures):
-                results.append(result)
-                worker_id = game_args[i][3]
-                worker_stats[worker_id]['games'] += 1
-                if 'Adaptive' in result['agents']:
-                    winner_idx = result['winner']
-                    if result['agents'][winner_idx] == 'Adaptive':
-                        worker_stats[worker_id]['wins'] += 1
-                tracker.update(result)
+            futures = {executor.submit(_run_single_game, args): args for args in game_args}
+            
+            for future in as_completed(futures):
+                args = futures[future]
+                worker_id = args[3]
+                try:
+                    result = future.result()
+                    results.append(result)
+                    worker_stats[worker_id]['games'] += 1
+                    worker_stats[worker_id]['active'] = False
+                    if 'Adaptive' in result['agents']:
+                        winner_idx = result['winner']
+                        if result['agents'][winner_idx] == 'Adaptive':
+                            worker_stats[worker_id]['wins'] += 1
+                    tracker.update(result, worker_id=worker_id)
+                except Exception as e:
+                    print(f"Game failed: {e}")
         
         tracker.finish()
         

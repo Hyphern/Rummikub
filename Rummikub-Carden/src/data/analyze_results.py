@@ -759,8 +759,8 @@ def plot_overall_winrate(games: List[dict], show: bool = False):
 
 
 def main():
-    do_plots = "--plots" in sys.argv
-    show_plots = "--show" in sys.argv
+    do_plots = True
+    show_plots = False
 
     print(f"\nLoading data from: {DEFAULT_CSV}")
     games = load_games()
@@ -801,9 +801,6 @@ def main():
         if adaptive:
             plot_adaptive_evolution(adaptive, show=show_plots)
         print()
-    elif not do_plots:
-        print("Tip: run with --plots to generate PNG charts, --show to display them.\n")
-
 
 if __name__ == "__main__":
     main()
