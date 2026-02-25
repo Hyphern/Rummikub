@@ -13,12 +13,110 @@ import time
 import sys
 import csv
 import os
+import warnings
+from concurrent.futures import ProcessPoolExecutor
+import multiprocessing
+
+warnings.filterwarnings('ignore', category=DeprecationWarning)
 
 # Resolve paths relative to this script's directory, not cwd
 _SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 from ml_environment import RummikubMLEnv
 from agent import RummikubAgent
+
+
+def _create_agents_by_name(agent_names, worker_id=0, num_workers=1):
+    from agent import (
+        SmartWormAgent, create_hoarder, create_aggressive, 
+        create_strategic, create_greedy, create_cautious, create_adaptive,
+    )
+    from agent import AdaptiveWormAgent
+    import os
+    
+    name_to_factory = {
+        'SmartWorm': SmartWormAgent,
+        'Hoarder': create_hoarder,
+        'Aggressive': create_aggressive,
+        'Strategic': create_strategic,
+        'Greedy': create_greedy,
+        'Cautious': create_cautious,
+    }
+    
+    agents = []
+    for name in agent_names:
+        if name == 'Adaptive':
+            save_file = os.path.join(_SCRIPT_DIR, f"adaptive_weights_worker{worker_id}.json")
+            variation = (worker_id - num_workers / 2) * 0.1
+            adaptive = AdaptiveWormAgent(
+                name=name,
+                aggressiveness=0.5 + variation,
+                meld_size_preference=0.5 - variation,
+                draw_preference=0.3 + variation * 0.5,
+                save_file=save_file,
+            )
+            adaptive._load_state()
+            agents.append(adaptive)
+        elif name in name_to_factory:
+            agents.append(name_to_factory[name]())
+        else:
+            agents.append(name_to_factory.get(name, SmartWormAgent)())
+    
+    return agents
+
+
+def _run_single_game(args):
+    import warnings
+    warnings.filterwarnings('ignore')
+    
+    agent_names, agent_indices, seed, worker_id, num_workers = args
+    agents = _create_agents_by_name(agent_names, worker_id, num_workers)
+    game_agents = [agents[i] for i in agent_indices]
+    
+    env = RummikubMLEnv(num_players=2)
+    obs = env.reset(seed=seed)
+    for agent in game_agents:
+        agent.reset()
+    
+    done = False
+    step = 0
+    current_player = 0
+    
+    info = {'winner': -1}
+    while not done and step < env.max_steps:
+        agent = game_agents[current_player]
+        valid_actions = obs['valid_actions_mask']
+        action = agent.select_action(obs, valid_actions)
+        next_obs, reward, done, info = env.step(action)
+        
+        if hasattr(agent, 'update'):
+            agent.update(reward, next_obs)
+        
+        obs = next_obs
+        current_player = obs['current_player'][0]
+        step += 1
+        
+        if done:
+            break
+    
+    for agent in game_agents:
+        if hasattr(agent, '_save_state'):
+            try:
+                agent._save_state()
+                print(f"[DEBUG] Saved state for {agent.name}", flush=True)
+            except Exception as e:
+                print(f"Warning: Could not save state for {agent.name}: {e}")
+    
+    winner_idx = info.get('winner', -1)
+    winner_name = game_agents[winner_idx].name if winner_idx >= 0 else 'None'
+    
+    return {
+        'agents': [a.name for a in game_agents],
+        'winner': winner_idx,
+        'winner_name': winner_name,
+        'steps': step,
+        'seed': seed,
+    }
 
 
 class MatchupTracker:
@@ -633,6 +731,91 @@ class Tournament:
         
         return self.get_results()
     
+    def run_random_matchups_parallel(self, num_games: int = 100,
+                                      num_workers: Optional[int] = None,
+                                      verbose: bool = True,
+                                      progress_interval: float = 2.0) -> Dict:
+        """Run random matchups between agents in PARALLEL using multiple processes.
+        
+        Bypasses the GIL for significant speedup on multi-core CPUs.
+        
+        Args:
+            num_games: Total number of games to run
+            num_workers: Number of worker processes (defaults to CPU count)
+            verbose: Print progress updates
+            progress_interval: How often to update progress display (seconds)
+            
+        Returns:
+            Tournament results
+        """
+        if num_workers is None:
+            num_workers = max(1, multiprocessing.cpu_count() // 2)
+        
+        print(f"\nRunning Random Matchups (PARALLEL - {num_workers} workers)")
+        print(f"Total games: {num_games}")
+        print()
+        
+        agent_names = [a.name for a in self.agents]
+        game_args = []
+        for game_idx in range(num_games):
+            agent_indices = random.sample(range(len(self.agents)), self.num_players)
+            seed = random.randint(0, 1000000)
+            worker_id = game_idx % num_workers
+            game_args.append((agent_names, agent_indices, seed, worker_id, num_workers))
+        
+        tracker = ProgressTracker(num_games, update_interval=progress_interval)
+        tracker.start()
+        
+        results = []
+        worker_stats = {i: {'wins': 0, 'games': 0} for i in range(num_workers)}
+        
+        with ProcessPoolExecutor(max_workers=num_workers) as executor:
+            futures = list(executor.map(_run_single_game, game_args))
+            for i, result in enumerate(futures):
+                results.append(result)
+                worker_id = game_args[i][3]
+                worker_stats[worker_id]['games'] += 1
+                if 'Adaptive' in result['agents']:
+                    winner_idx = result['winner']
+                    if result['agents'][winner_idx] == 'Adaptive':
+                        worker_stats[worker_id]['wins'] += 1
+                tracker.update(result)
+        
+        tracker.finish()
+        
+        self.game_results = results
+        for result in results:
+            agents = result['agents']
+            winner_idx = result['winner']
+            for i, name in enumerate(agents):
+                self.agent_stats[name]['games'] += 1
+                if i == winner_idx:
+                    self.agent_stats[name]['wins'] += 1
+        
+        if self.matchup_tracker:
+            for result in results:
+                hand_sizes = [0, 0]
+                self.matchup_tracker.record_game(result, hand_sizes)
+        
+        for agent in self.agents:
+            if hasattr(agent, '_save_state'):
+                agent._save_state()
+        
+        if 'Adaptive' in agent_names:
+            best_worker = max(worker_stats.items(), key=lambda x: x[1]['wins'] / max(1, x[1]['games']))
+            best_worker_id = best_worker[0]
+            print(f"\n[EVOLUTION] Best worker: {best_worker_id} with {best_worker[1]['wins']}/{best_worker[1]['games']} wins")
+            
+            import shutil
+            import os
+            best_file = os.path.join(_SCRIPT_DIR, f"adaptive_weights_worker{best_worker_id}.json")
+            main_file = os.path.join(_SCRIPT_DIR, "adaptive_weights.json")
+            if os.path.exists(best_file):
+                shutil.copy(best_file, main_file)
+                print(f"[EVOLUTION] Copied best weights to {main_file}")
+        
+        return self.get_results()
+    
     def get_results(self) -> Dict:
         """Get tournament results and statistics."""
         results = {
@@ -742,10 +925,10 @@ if __name__ == "__main__":
     print("  - Adaptive:    Learns weight adjustments from wins/losses")
 
     print("\n" + "=" * 60)
-    print("Running Tournament: All Strategies")
+    print("Running Tournament: All Strategies (PARALLEL)")
     print("=" * 60)
     tournament = Tournament(agents, num_players=2)
-    tournament.run_random_matchups(num_games=200, verbose=False, show_progress=True, progress_interval=2.0)
+    tournament.run_random_matchups_parallel(num_games=1000, verbose=True, progress_interval=2.0)
     tournament.print_results()
     tournament.print_matchup_matrix()
     

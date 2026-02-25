@@ -92,7 +92,6 @@ class SmartWormAgent(RummikubAgent):
             self.table_to_board_matrix = table_to_board_matrix
         except ImportError as e:
             self.worm_available = False
-            print(f"Warning: worm_integration not available: {e}")
     
     def select_action(self, observation: Dict[str, np.ndarray],
                      valid_actions: np.ndarray) -> int:
@@ -662,10 +661,8 @@ class AdaptiveWormAgent(WeightedWormAgent):
             self.stats = state.get('stats', self.stats)
             self.weight_history = state.get('weight_history', [])
             self.current_streak = 0  # Reset streak between runs
-            print(f"  Loaded {self.name} weights from {self.save_file}"
-                  f" ({self.stats['games_played']} prior games)")
         except (OSError, json.JSONDecodeError, KeyError) as e:
-            print(f"Warning: Could not load adaptive weights: {e}")
+            pass
     
     def _current_lr(self) -> float:
         games = self.stats['games_played']
