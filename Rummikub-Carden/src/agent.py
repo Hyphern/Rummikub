@@ -131,9 +131,6 @@ class SmartWormAgent(RummikubAgent):
         2. After initial: Use wormed to find+apply definite moves on
            combined board, then play any hand tiles consumed by those,
            then play any additional melds from hand, then add to table melds
-        2b. Try close tile pairs: After single-tile solving exhausts, try
-            adding two "close" hand tiles simultaneously and re-run wormed
-            to see if the pair unlocks new definite moves
         3. Fallback: Scan valid_indices directly for any remaining playable
            actions (PLAY_NEW_MELD or ADD_TO_MELD) that Steps 2a-2c missed
         4. Last resort: pick up
@@ -223,15 +220,6 @@ class SmartWormAgent(RummikubAgent):
             if self.DEBUG: print(f"  [SmartWorm] Adding tile to existing meld", flush=True)
             return add_action
         
-        # ── Step 2b: Try close tile pairs ──
-        # After single-tile solving exhausts, try adding two "close" hand tiles
-        # to the board simultaneously and re-run wormed to unlock new moves.
-        pair_action = self._try_pair_solving(
-            board_after, remaining_hand, hand, table, valid_indices, cached_melds
-        )
-        if pair_action is not None:
-            return pair_action
-        
         # ── Step 3: Direct valid_indices scan ──
         # Safety net: scan all remaining valid actions in case Steps 2a-2c
         # missed something due to tile matching or index edge cases.
@@ -294,116 +282,8 @@ class SmartWormAgent(RummikubAgent):
         return None
     
     
-    def _find_close_pairs(self, remaining_hand: List[List[int]]) -> List[tuple]:
-        """Find pairs of 'close' tiles from remaining hand tiles.
-        
-        Close means:
-        - Same number, different color (potential group mates)
-        - Same color, numbers within 2 (potential run mates, e.g. black 2 & black 4)
-        
-        Returns list of ((row1, col1), (row2, col2)) pairs.
-        """
-        # Collect all remaining hand tile positions
-        positions = []
-        for row in range(4):
-            for col in range(13):
-                for _ in range(remaining_hand[row][col]):
-                    positions.append((row, col))
-        
-        pairs = []
-        for i in range(len(positions)):
-            for j in range(i + 1, len(positions)):
-                r1, c1 = positions[i]
-                r2, c2 = positions[j]
-                
-                # Same number, different color (group mates)
-                if c1 == c2 and r1 != r2:
-                    pairs.append((positions[i], positions[j]))
-                # Same color, numbers within 2 (run mates)
-                elif r1 == r2 and 0 < abs(c1 - c2) <= 2:
-                    pairs.append((positions[i], positions[j]))
-        
-        return pairs
-    
-    def _try_pair_solving(self, board_after: List[List[int]], 
-                          remaining_hand: List[List[int]],
-                          hand: List[Any], table: List[Any],
-                          valid_indices: np.ndarray,
-                          cached_melds: Optional[List] = None) -> Optional[int]:
-        """Try adding pairs of close hand tiles to the board and re-run wormed.
-        
-        After single-tile wormed solving exhausts, this tries adding two 'close'
-        tiles simultaneously to see if that unlocks new definite moves.
-        
-        Returns an action if a successful pair is found, None otherwise.
-        """
-        import wormed
-        from copy import deepcopy
-        
-        pairs = self._find_close_pairs(remaining_hand)
-        if not pairs:
-            return None
-        
-        if self.DEBUG:
-            print(f"  [SmartWorm] Trying {len(pairs)} close tile pairs", flush=True)
-        
-        best_pair = None
-        best_moves_count = 0
-        
-        for (r1, c1), (r2, c2) in pairs:
-            # Add both tiles to the board
-            test_board = deepcopy(board_after)
-            test_board[r1][c1] += 1
-            test_board[r2][c2] += 1
-            
-            # Run wormed to see if this unlocks new definite moves
-            new_moves = []
-            while True:
-                moves = wormed.find_explicit_moves(test_board)
-                if not moves:
-                    break
-                for move in moves:
-                    new_moves.append(move)
-                    test_board = wormed.apply_move(test_board, move)
-            
-            # Check if these new moves actually consume both added tiles
-            if len(new_moves) > 0:
-                # Check that the pair tiles are consumed by the new moves
-                pair_consumed = 0
-                for move in new_moves:
-                    if move[0] == 'run':
-                        _, row, start, end = move
-                        if row == r1 and start <= c1 <= end:
-                            pair_consumed += 1
-                        if row == r2 and start <= c2 <= end:
-                            pair_consumed += 1
-                    elif move[0] == 'group':
-                        _, col, colors = move
-                        if col == c1 and r1 in colors:
-                            pair_consumed += 1
-                        if col == c2 and r2 in colors:
-                            pair_consumed += 1
-                
-                # Only accept if both tiles from the pair are used
-                if pair_consumed >= 2 and len(new_moves) > best_moves_count:
-                    best_pair = ((r1, c1), (r2, c2))
-                    best_moves_count = len(new_moves)
-        
-        if best_pair is not None:
-            if self.DEBUG:
-                print(f"  [SmartWorm] Pair solving found {best_moves_count} moves "
-                      f"with tiles {best_pair}", flush=True)
-            
-            # Try to play the first tile of the winning pair
-            for tile_pos in best_pair:
-                action = self._play_tile_from_hand(tile_pos, hand, table, valid_indices, cached_melds)
-                if action is not None:
-                    return action
-        
-        return None
-    
     def _find_add_to_meld_action(self, hand: List[Any], table: List[Any], 
-                                  valid_indices: np.ndarray) -> Optional[int]:
+                                 valid_indices: np.ndarray) -> Optional[int]:
         """Try to add any hand tile to an existing table meld."""
         from meld import Meld
         
@@ -623,14 +503,6 @@ class WeightedWormAgent(SmartWormAgent):
             add_action = self._find_add_to_meld_action(hand, table, valid_indices)
             if add_action is not None:
                 return add_action
-        
-        # ── Step 2b: Try close tile pairs ──
-        if hand_size >= play_threshold:
-            pair_action = self._try_pair_solving(
-                board_after, remaining_hand, hand, table, valid_indices, cached_melds
-            )
-            if pair_action is not None:
-                return pair_action
         
         # ── Step 3: Fallback scan ──
         if hand_size >= play_threshold:
